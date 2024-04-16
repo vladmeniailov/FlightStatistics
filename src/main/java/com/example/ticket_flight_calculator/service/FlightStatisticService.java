@@ -65,6 +65,7 @@ public class FlightStatisticService {
 
     private Map<String, Long> getMinFlightTimeByCompanies(List<Ticket> tickets) {
         return tickets.stream()
+                .filter(ticket -> ticket.getOrigin().equals("VVO") && ticket.getDestination().equals("TLV"))
                 .collect(Collectors.groupingBy(Ticket::getCarrier,
                         Collectors.mapping(Ticket::getDurationTime,
                                 Collectors.minBy(Comparator.naturalOrder()))))
