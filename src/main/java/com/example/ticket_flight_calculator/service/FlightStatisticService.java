@@ -21,10 +21,10 @@ public class FlightStatisticService {
 
     public void calculateStatistics(String pathTicketsJson) {
         TicketsWrapper ticketsWrapper = readJson(pathTicketsJson);
-        List<Ticket> tickets = ticketsWrapper.getTickets();
-        Map<String, Long> minFlightTimeByCompanies = getMinFlightTimeByCompanies(tickets);
-        double averagePrice = getAveragePrice(tickets);
-        double medianPrice = getMedianPrice(tickets);
+        List<Ticket> filteredTickets = getFilteredTickets(ticketsWrapper);
+        Map<String, Long> minFlightTimeByCompanies = getMinFlightTimeByCompanies(filteredTickets);
+        double averagePrice = getAveragePrice(filteredTickets);
+        double medianPrice = getMedianPrice(filteredTickets);
         double difference = Math.abs(averagePrice - medianPrice);
 
         System.out.println("Минимальное время перелета Владивосток - Тель-Авив:");
@@ -37,6 +37,14 @@ public class FlightStatisticService {
         System.out.println("\nСредняя цена полета между городами Владивосток и Тель-Авив - " + averagePrice + " руб.");
         System.out.println("Медиана полета между городами Владивосток и Тель-Авив - " + medianPrice + " руб.");
         System.out.println("\nРазница между средней ценой и медианой - " + difference + " руб.");
+    }
+
+    private static List<Ticket> getFilteredTickets(TicketsWrapper ticketsWrapper) {
+        return ticketsWrapper.getTickets()
+                .stream()
+                .filter(ticket -> ticket.getOrigin().equals("VVO")
+                        && ticket.getDestination().equals("TLV"))
+                .collect(Collectors.toList());
     }
 
     private TicketsWrapper readJson(String filePath) {
@@ -55,7 +63,7 @@ public class FlightStatisticService {
                 .map(Ticket::getPrice)
                 .sorted()
                 .toList();
-        int middle = tickets.size() / 2;
+        int middle = sortedPrices.size() / 2;
         if (sortedPrices.size() % 2 == 1) {
             return sortedPrices.get(middle);
         } else {
@@ -65,7 +73,6 @@ public class FlightStatisticService {
 
     private Map<String, Long> getMinFlightTimeByCompanies(List<Ticket> tickets) {
         return tickets.stream()
-                .filter(ticket -> ticket.getOrigin().equals("VVO") && ticket.getDestination().equals("TLV"))
                 .collect(Collectors.groupingBy(Ticket::getCarrier,
                         Collectors.mapping(Ticket::getDurationTime,
                                 Collectors.minBy(Comparator.naturalOrder()))))
