@@ -19,9 +19,6 @@ public class FlightStatisticApplication {
 
     @Bean
     CommandLineRunner commandLineRunner(FlightStatisticService flightStatisticService) {
-        return args -> {
-            flightStatisticService.calculateStatistics("src/main/resources/tickets.json");
-        };
+        return args -> flightStatisticService.calculateStatistics("src/main/resources/tickets.json");
     }
-
 }
