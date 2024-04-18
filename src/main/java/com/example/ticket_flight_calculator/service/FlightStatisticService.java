@@ -7,6 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FlightStatisticService {
 
+    public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("H:mm");
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy");
     private final GsonParser<TicketsWrapper> parser;
 
     public void calculateStatistics(String pathTicketsJson) {
@@ -74,11 +81,24 @@ public class FlightStatisticService {
     private Map<String, Long> getMinFlightTimeByCompanies(List<Ticket> tickets) {
         return tickets.stream()
                 .collect(Collectors.groupingBy(Ticket::getCarrier,
-                        Collectors.mapping(Ticket::getDurationTime,
+                        Collectors.mapping(this::getDurationTime,
                                 Collectors.minBy(Comparator.naturalOrder()))))
                 .entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().isPresent())
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().get()));
+    }
+
+    private long getDurationTime(Ticket ticket) {
+        LocalDate dateDeparture = LocalDate.parse(ticket.getDepartureDate(), DATE_FORMAT);
+        LocalTime timeDeparture = LocalTime.parse(ticket.getDepartureTime(), TIME_FORMAT);
+        LocalDateTime dateTimeDeparture = LocalDateTime.of(dateDeparture, timeDeparture);
+
+        LocalDate dateArrival = LocalDate.parse(ticket.getArrivalDate(), DATE_FORMAT);
+        LocalTime timeArrival = LocalTime.parse(ticket.getArrivalTime(), TIME_FORMAT);
+        LocalDateTime dateTimeArrival = LocalDateTime.of(dateArrival, timeArrival);
+
+        Duration flightTime = Duration.between(dateTimeDeparture, dateTimeArrival);
+        return flightTime.toMinutes();
     }
 }

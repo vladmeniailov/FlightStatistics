@@ -6,10 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
-import java.time.LocalTime;
-import java.util.Date;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,19 +17,14 @@ public class Ticket {
     @SerializedName("destination_name")
     private String destinationName;
     @SerializedName("departure_date")
-    private Date departureDate;
+    private String departureDate;
     @SerializedName("departure_time")
-    private LocalTime departureTime;
+    private String departureTime;
     @SerializedName("arrival_date")
-    private Date arrivalDate;
+    private String arrivalDate;
     @SerializedName("arrival_time")
-    private LocalTime arrivalTime;
+    private String arrivalTime;
     private String carrier;
     private int stops;
     private int price;
-
-    public long getDurationTime() {
-        Duration duration = Duration.between(getDepartureTime(), getArrivalTime());
-        return duration.toMinutes();
-    }
 }

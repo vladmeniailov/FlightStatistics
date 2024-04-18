@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class FlightStatisticApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FlightStatisticApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(FlightStatisticApplication.class, args);
+    }
 
     @Bean
     CommandLineRunner commandLineRunner(FlightStatisticService flightStatisticService) {
